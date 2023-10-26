@@ -1,7 +1,6 @@
 package com.example.notesapp
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -41,7 +40,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val list = remember {
-                mutableStateListOf(Note(title = "Monday",content = "Shopping"))
+                mutableStateListOf(
+                    Note(title = "Monday",content = "Shopping"),
+                    Note(title = "Tuesday",content = "Playing basketball"),
+                    Note(title = "Wednesday",content = "Hiking"),
+                    Note(title = "Thursday",content = "Swimming")
+                )
             }
 
             NotesAppTheme {
@@ -50,7 +54,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen(list = list)
+                    MainScreen1(list = list)
                 }
             }
         }
@@ -58,7 +62,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(list: MutableList<Note>, modifier: Modifier = Modifier) {
+fun MainScreen1(list: MutableList<Note>, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()

@@ -10,3 +10,5 @@ data class Note(
     val content: String,
     var isChecked: MutableState<Boolean> = mutableStateOf(false)
 )
+
+
