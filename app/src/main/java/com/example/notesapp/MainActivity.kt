@@ -1,6 +1,7 @@
 package com.example.notesapp
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -11,8 +12,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -27,6 +30,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.modifier.modifierLocalMapOf
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.notesapp.ui.theme.NotesAppTheme
@@ -95,25 +100,47 @@ fun TextInputView(list: MutableList<Note>) {
     }
 }
 
+fun deleteNote(list: MutableList<Note>, position: Int) {
+    if (position >= 0 && position < list.size) {
+        list.removeAt(position)
+    }
+}
+
 @Composable
-fun ListView(list: List<Note>) {
+fun ListView(list: MutableList<Note>) {
     LazyColumn {
-        items(list) { note ->
-            RowView(note)
+        itemsIndexed(list) {index, note ->
+            RowView(note = note, onDeleteClick = {
+                deleteNote(list, index)
+            })
         }
     }
 }
 
 @Composable
-fun RowView(note: Note) {
+fun RowView(note: Note, onDeleteClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxSize(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = note.title)
+        Checkbox(
+            checked = note.isChecked.value,
+            onCheckedChange = {
+                note.isChecked.value = !note.isChecked.value
+            }
+        )
+        Text(
+            text = note.title,
+            fontWeight = FontWeight.Bold
+        )
         Spacer(modifier = Modifier.width(16.dp))
         Text(text = note.content)
+        Spacer(modifier = Modifier.width(16.dp))
+        Button(
+            onClick = onDeleteClick,
+            content = { Text("Delete")}
+        )
     }
 }
 
@@ -121,6 +148,7 @@ fun RowView(note: Note) {
 @Composable
 fun RowViewPreview() {
     NotesAppTheme {
-        RowView(Note(title = "Monday", content = "Shopping"))
+        val note = Note(title = "Monday", content = "Shopping")
+        RowView(note = note, onDeleteClick = {})
     }
 }
