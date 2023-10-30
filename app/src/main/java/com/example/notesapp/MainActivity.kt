@@ -54,21 +54,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen1(list = list)
+                    Navigation()
                 }
             }
         }
-    }
-}
-
-@Composable
-fun MainScreen1(list: MutableList<Note>, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-    ) {
-        TextInputView(list = list)
-        ListView(list = list)
     }
 }
 
@@ -111,18 +100,19 @@ fun deleteNote(list: MutableList<Note>, position: Int) {
 }
 
 @Composable
-fun ListView(list: MutableList<Note>) {
+fun ListView(list: MutableList<Note>, onEditClick: (Note) -> Unit) {
     LazyColumn {
-        itemsIndexed(list) {index, note ->
+        itemsIndexed(list) { index, note ->
             RowView(note = note, onDeleteClick = {
                 deleteNote(list, index)
-            })
+            }, onEditClick = { onEditClick(note) }
+            )
         }
     }
 }
 
 @Composable
-fun RowView(note: Note, onDeleteClick: () -> Unit) {
+fun RowView(note: Note, onDeleteClick: () -> Unit, onEditClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxSize(),
@@ -141,18 +131,61 @@ fun RowView(note: Note, onDeleteClick: () -> Unit) {
         Spacer(modifier = Modifier.width(16.dp))
         Text(text = note.content)
         Spacer(modifier = Modifier.width(16.dp))
-        Button(
-            onClick = onDeleteClick,
-            content = { Text("Delete")}
-        )
+    }
+    Column {
+        Row {
+            Button(
+                onClick = onDeleteClick,
+                content = { Text("Delete") }
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Button(
+                onClick = onEditClick,
+                content = { Text("Edit") }
+            )
+        }
     }
 }
+
+@Composable
+fun EditNoteView(list: MutableList<Note>, noteIndex: Int, onSaveClick: (String, String) -> Unit) {
+    var titleText by rememberSaveable {
+        mutableStateOf(list[noteIndex].title)
+    }
+    var contentText by rememberSaveable {
+        mutableStateOf(list[noteIndex].content)
+    }
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        OutlinedTextField(
+            value = titleText,
+            onValueChange = { titleText = it },
+            label = { Text("Title") }
+        )
+        OutlinedTextField(
+            value = contentText,
+            onValueChange = { contentText = it },
+            label = { Text("Content") }
+        )
+
+        Button(
+            onClick = {
+                onSaveClick(titleText, contentText)
+            }
+        ) {
+            Text("Save")
+        }
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable
 fun RowViewPreview() {
     NotesAppTheme {
         val note = Note(title = "Monday", content = "Shopping")
-        RowView(note = note, onDeleteClick = {})
+        RowView(note = note, onDeleteClick = {}, onEditClick = {})
     }
 }
