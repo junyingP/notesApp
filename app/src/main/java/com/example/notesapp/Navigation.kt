@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -20,6 +21,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavType
@@ -50,21 +52,39 @@ fun Navigation() {
         ) {
             DetailScreen(navController = navController)
         }
-
         composable(
-            route = Screen.CreatNoteScreen.route
+            route = Screen.CreateNoteScreen.route
         ) {
-            CreatNoteScreen(list = list, navController = navController)
+            CreateNoteScreen(list = list, navController = navController)
         }
+        composable(
+            route = Screen.EditNoteScreen.route + "/{noteIndex}",
+            arguments = listOf(navArgument("noteIndex") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val noteIndex = backStackEntry.arguments?.getInt("noteIndex")
+            if (noteIndex != null) {
+                val noteToEdit = list.getOrNull(noteIndex)
+                if (noteToEdit != null) {
+                    EditNoteScreen(note = noteToEdit) { title, content, validationResult ->
+                        // Handle saving the edited note here
+                        // You can use noteIndex to update the list if needed
+                        if (validationResult.isTitleValid && validationResult.isContentLengthValid) {
+                            noteToEdit.title = title
+                            noteToEdit.content = content
+                        }
+                        navController.popBackStack()
+                    }
+                }
+            }
+        }
+
     }
 }
 
 @Composable
 fun MainScreen(list: MutableList<Note>, navController: NavController) {
     var editingNote: Note? by remember { mutableStateOf(null) }
-    var validationResults by remember {
-        mutableStateOf(ValidationResults())
-    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -72,7 +92,7 @@ fun MainScreen(list: MutableList<Note>, navController: NavController) {
     ) {
         Button(
             onClick = {
-                navController.navigate(Screen.CreatNoteScreen.route)
+                navController.navigate(Screen.CreateNoteScreen.route)
             },
             modifier = Modifier.align(Alignment.Start)
         ) {
@@ -82,28 +102,12 @@ fun MainScreen(list: MutableList<Note>, navController: NavController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         ListView(list = list, onEditClick = { note ->
-            editingNote = note})
-
-
+            editingNote = note
+            navController.navigate(Screen.EditNoteScreen.route + "/${list.indexOf(note)}")
+        })
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (editingNote != null) {
-            val noteIndex = list.indexOf(editingNote!!)
-            EditNoteView(
-                list = list,
-                noteIndex = noteIndex,
-                onSaveClick = { title, content, validationResult ->
-                    if (validationResult.isTitleValid && validationResult.isContentLengthValid) {
-                        list[noteIndex].title = title
-                        list[noteIndex].content = content
-                        editingNote = null
-                    }
-                    // Update the validation results in MainScreen
-                    validationResults = validationResult
-                }
-            )
-        }
         Button(
             onClick = {
                 navController.navigate(Screen.DetailScreen.route)
@@ -136,14 +140,13 @@ fun DetailScreen(modifier: Modifier = Modifier, navController: NavController) {
 }
 
 @Composable
-fun CreatNoteScreen(list: MutableList<Note>, modifier: Modifier = Modifier, navController: NavController) {
+fun CreateNoteScreen(list: MutableList<Note>, modifier: Modifier = Modifier, navController: NavController) {
     
     Column(
         modifier = modifier
             .fillMaxSize()
     ) {
         TextInputView(list = list)
-
         Button(
             onClick = {
                 navController.popBackStack()
@@ -152,9 +155,61 @@ fun CreatNoteScreen(list: MutableList<Note>, modifier: Modifier = Modifier, navC
         ) {
             Text(text = "Back to Main Screen")
         }
-
     }
 }
+
+@Composable
+fun EditNoteScreen(
+    note: Note,
+    onSaveClick: (String, String, ValidationResults) -> Unit
+) {
+    var titleText by rememberSaveable { mutableStateOf(note.title) }
+    var contentText by rememberSaveable { mutableStateOf(note.content) }
+    var validationResults by remember { mutableStateOf(ValidationResults()) }
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        OutlinedTextField(
+            value = titleText,
+            onValueChange = { titleText = it },
+            label = { Text("Title") }
+        )
+        if (!validationResults.isTitleValid) {
+            Text(
+                text = validationResults.titleErrorMessage,
+                color = Color.Red,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
+        OutlinedTextField(
+            value = contentText,
+            onValueChange = { contentText = it },
+            label = { Text("Content") }
+        )
+        if (!validationResults.isContentLengthValid) {
+            Text(
+                text = validationResults.contentErrorMessage,
+                color = Color.Red,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
+        Button(
+            onClick = {
+                val validationResult = validateNoteInput(titleText, contentText)
+                if (validationResult.isTitleValid && validationResult.isContentLengthValid) {
+                    onSaveClick(titleText, contentText, validationResult)
+                } else {
+                    // Display validation error messages
+                    validationResults = validationResult
+                }
+            }
+        ) {
+            Text("Save")
+        }
+    }
+}
+
 
 
 
