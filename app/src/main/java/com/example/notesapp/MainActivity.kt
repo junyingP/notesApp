@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -33,7 +34,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
 import com.example.notesapp.ui.theme.NotesAppTheme
+import androidx.compose.ui.graphics.Color
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,6 +72,9 @@ fun TextInputView(list: MutableList<Note>) {
     var contentText by rememberSaveable {
         mutableStateOf("")
     }
+    var validationResults by remember {
+        mutableStateOf(ValidationResults())
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -78,19 +84,62 @@ fun TextInputView(list: MutableList<Note>) {
         },
             label = { Text("Title") }
         )
+        if (!validationResults.isTitleValid) {
+            Text(
+                text = validationResults.titleErrorMessage,
+                color = Color.Red,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
         OutlinedTextField(value = contentText, onValueChange = {
             contentText = it
         },
             label = { Text("Content") }
         )
-        Button(onClick = {
-            list.add(Note(title = titleText, content = contentText))
-            titleText = ""
-            contentText = ""
-        }) {
+        if (!validationResults.isContentLengthValid) {
+            Text(
+                text = validationResults.contentErrorMessage,
+                color = Color.Red,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
+        Button(
+            onClick = {
+            val validationResult = validateNoteInput(titleText, contentText)
+            if (validationResult.isTitleValid && validationResult.isTitleLengthValid && validationResult.isContentLengthValid) {
+                list.add(Note(title = titleText, content = contentText))
+                titleText = ""
+                contentText = ""
+            } else {
+                validationResults = validationResult
+            }
+        },
+            modifier = Modifier.padding(16.dp)
+        ) {
             Text("Add")
         }
     }
+}
+
+fun validateNoteInput(title: String, content: String): ValidationResults {
+    val results = ValidationResults()
+
+    if (title.length < 3) {
+        results.isTitleValid = false
+        results.titleErrorMessage = "Title must contain at least 3 characters."
+    }
+
+    if (title.length > 50) {
+        results.isTitleLengthValid = false
+        results.titleErrorMessage = "Title must not exceed 50 characters."
+    }
+
+    if (content.length > 120) {
+        results.isContentLengthValid = false
+        results.contentErrorMessage = "Content must not exceed 120 characters."
+    }
+
+    return results
 }
 
 fun deleteNote(list: MutableList<Note>, position: Int) {
@@ -148,12 +197,15 @@ fun RowView(note: Note, onDeleteClick: () -> Unit, onEditClick: () -> Unit) {
 }
 
 @Composable
-fun EditNoteView(list: MutableList<Note>, noteIndex: Int, onSaveClick: (String, String) -> Unit) {
+fun EditNoteView(list: MutableList<Note>, noteIndex: Int, onSaveClick: (String, String, ValidationResults) -> Unit) {
     var titleText by rememberSaveable {
         mutableStateOf(list[noteIndex].title)
     }
     var contentText by rememberSaveable {
         mutableStateOf(list[noteIndex].content)
+    }
+    var validationResults by remember {
+        mutableStateOf(ValidationResults())
     }
 
     Column(
@@ -164,15 +216,35 @@ fun EditNoteView(list: MutableList<Note>, noteIndex: Int, onSaveClick: (String, 
             onValueChange = { titleText = it },
             label = { Text("Title") }
         )
+        if (!validationResults.isTitleValid) {
+            Text(
+                text = validationResults.titleErrorMessage,
+                color = Color.Red,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
         OutlinedTextField(
             value = contentText,
             onValueChange = { contentText = it },
             label = { Text("Content") }
         )
+        if (!validationResults.isContentLengthValid) {
+            Text(
+                text = validationResults.contentErrorMessage,
+                color = Color.Red,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
 
         Button(
             onClick = {
-                onSaveClick(titleText, contentText)
+                val validationResult = validateNoteInput(titleText, contentText)
+                if (validationResult.isTitleValid && validationResult.isContentLengthValid) {
+                    onSaveClick(titleText, contentText, validationResult)
+                } else {
+                    // Display validation error messages
+                    validationResults = validationResult
+                }
             }
         ) {
             Text("Save")

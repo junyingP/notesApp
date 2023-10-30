@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,7 +62,9 @@ fun Navigation() {
 @Composable
 fun MainScreen(list: MutableList<Note>, navController: NavController) {
     var editingNote: Note? by remember { mutableStateOf(null) }
-
+    var validationResults by remember {
+        mutableStateOf(ValidationResults())
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -81,6 +84,8 @@ fun MainScreen(list: MutableList<Note>, navController: NavController) {
         ListView(list = list, onEditClick = { note ->
             editingNote = note})
 
+
+
         Spacer(modifier = Modifier.height(16.dp))
 
         if (editingNote != null) {
@@ -88,11 +93,14 @@ fun MainScreen(list: MutableList<Note>, navController: NavController) {
             EditNoteView(
                 list = list,
                 noteIndex = noteIndex,
-                onSaveClick = { title, content ->
-                    // Update the existing note with the new values
-                    list[noteIndex].title = title
-                    list[noteIndex].content = content
-                    editingNote = null
+                onSaveClick = { title, content, validationResult ->
+                    if (validationResult.isTitleValid && validationResult.isContentLengthValid) {
+                        list[noteIndex].title = title
+                        list[noteIndex].content = content
+                        editingNote = null
+                    }
+                    // Update the validation results in MainScreen
+                    validationResults = validationResult
                 }
             )
         }
@@ -104,7 +112,6 @@ fun MainScreen(list: MutableList<Note>, navController: NavController) {
         ) {
             Text(text = "Detail Screen")
         }
-
     }
 }
 
