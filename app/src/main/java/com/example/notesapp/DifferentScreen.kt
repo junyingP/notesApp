@@ -57,7 +57,6 @@ fun MainScreen(list: MutableList<Note>, navController: NavController) {
 
 @Composable
 fun DetailScreen(note: Note, modifier: Modifier = Modifier, navController: NavController) {
-
     Column(
         modifier = modifier
             .fillMaxSize()
