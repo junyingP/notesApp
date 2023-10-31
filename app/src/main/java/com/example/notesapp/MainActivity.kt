@@ -43,15 +43,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val list = remember {
-                mutableStateListOf(
-                    Note(title = "Monday",content = "Shopping"),
-                    Note(title = "Tuesday",content = "Playing basketball"),
-                    Note(title = "Wednesday",content = "Hiking"),
-                    Note(title = "Thursday",content = "Swimming")
-                )
-            }
-
             NotesAppTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -111,7 +102,6 @@ fun TextInputView(list: MutableList<Note>) {
                 list.add(Note(title = titleText, content = contentText))
                 titleText = ""
                 contentText = ""
-
             } else {
                 validationResults = validationResult
             }
@@ -140,68 +130,7 @@ fun validateNoteInput(title: String, content: String): ValidationResults {
         results.isContentLengthValid = false
         results.contentErrorMessage = "Content must not exceed 120 characters."
     }
-
     return results
-}
-
-fun deleteNote(list: MutableList<Note>, position: Int) {
-    if (position >= 0 && position < list.size) {
-        list.removeAt(position)
-    }
-}
-
-@Composable
-fun ListView(list: MutableList<Note>, onEditClick: (Note) -> Unit) {
-    LazyColumn {
-        itemsIndexed(list) { index, note ->
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-
-
-            ) {
-                RowView(note = note, onDeleteClick = {
-                    deleteNote(list, index)
-                }, onEditClick = { onEditClick(note) })
-            }
-        }
-    }
-}
-
-@Composable
-fun RowView(note: Note, onDeleteClick: () -> Unit, onEditClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxSize(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Checkbox(
-            checked = note.isChecked.value,
-            onCheckedChange = {
-                note.isChecked.value = !note.isChecked.value
-            }
-        )
-        Text(
-            text = note.title,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(text = note.content)
-        Spacer(modifier = Modifier.width(16.dp))
-    }
-    Column {
-        Row {
-            Button(
-                onClick = onDeleteClick,
-                content = { Text("Delete") }
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Button(
-                onClick = onEditClick,
-                content = { Text("Edit") }
-            )
-        }
-    }
 }
 
 @Preview(showBackground = true)
@@ -209,6 +138,6 @@ fun RowView(note: Note, onDeleteClick: () -> Unit, onEditClick: () -> Unit) {
 fun RowViewPreview() {
     NotesAppTheme {
         val note = Note(title = "Monday", content = "Shopping")
-        RowView(note = note, onDeleteClick = {}, onEditClick = {})
+        RowView(note = note, onDeleteClick = {}, onEditClick = {}, onDetailClick = {})
     }
 }
