@@ -44,12 +44,16 @@ fun MainScreen(list: MutableList<Note>, navController: NavController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        ListView(list = list, onEditClick = { note ->
-            editingNote = note
-            navController.navigate(Screen.EditNoteScreen.route + "/${list.indexOf(note)}")},
-                onDetailClick = {note ->
-            navController.navigate(Screen.DetailScreen.route + "/${list.indexOf(note)}")
-        })
+        ListView(
+            list = list,
+            onEditClick = { note ->
+                editingNote = note
+                navController.navigate(Screen.EditNoteScreen.route + "/${list.indexOf(note)}")
+            },
+            onDetailClick = { note ->
+                navController.navigate(Screen.DetailScreen.route + "/${list.indexOf(note)}")
+            }
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
     }
@@ -81,7 +85,6 @@ fun DetailScreen(note: Note, modifier: Modifier = Modifier, navController: NavCo
 
 @Composable
 fun CreateNoteScreen(list: MutableList<Note>, modifier: Modifier = Modifier, navController: NavController) {
-
     Column(
         modifier = modifier
             .fillMaxSize()
