@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -29,7 +28,7 @@ fun MainScreen(list: MutableList<Note>, navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-
+            .padding(8.dp)
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -42,8 +41,6 @@ fun MainScreen(list: MutableList<Note>, navController: NavController) {
             Text(text = "Create Notes")
         }
 
-        Spacer(modifier = Modifier.width(16.dp))
-
         ListView(
             list = list,
             onEditClick = { note ->
@@ -54,50 +51,30 @@ fun MainScreen(list: MutableList<Note>, navController: NavController) {
                 navController.navigate(Screen.DetailScreen.route + "/${list.indexOf(note)}")
             }
         )
-
-        Spacer(modifier = Modifier.width(16.dp))
     }
 }
 
 @Composable
-fun DetailScreen(note: Note, modifier: Modifier = Modifier, navController: NavController) {
+fun DetailScreen(note: Note, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
+            .padding(16.dp)
     ) {
         Text(text = note.title, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         Text(text = note.content)
-        Spacer(modifier = Modifier.width(16.dp))
-
-        Button(
-            onClick = {
-                navController.popBackStack()
-            },
-            modifier = Modifier
-                .padding(16.dp)
-                .align(Alignment.End)
-        ) {
-            Text(text = "Back to Main Screen")
-        }
     }
 }
 
 @Composable
-fun CreateNoteScreen(list: MutableList<Note>, modifier: Modifier = Modifier, navController: NavController) {
+fun CreateNoteScreen(list: MutableList<Note>, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
+            .padding(16.dp)
     ) {
         TextInputView(list = list)
-        Button(
-            onClick = {
-                navController.popBackStack()
-            },
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(text = "Back to Main Screen")
-        }
     }
 }
 
@@ -111,7 +88,9 @@ fun EditNoteScreen(
     var validationResults by remember { mutableStateOf(ValidationResults()) }
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
         OutlinedTextField(
             value = titleText,
@@ -137,6 +116,7 @@ fun EditNoteScreen(
                 modifier = Modifier.padding(8.dp)
             )
         }
+        Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
                 val validationResult = validateNoteInput(titleText, contentText)
