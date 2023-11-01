@@ -3,9 +3,9 @@ package com.example.notesapp
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -42,7 +42,7 @@ fun MainScreen(list: MutableList<Note>, navController: NavController) {
             Text(text = "Create Notes")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.width(16.dp))
 
         ListView(
             list = list,
@@ -55,7 +55,7 @@ fun MainScreen(list: MutableList<Note>, navController: NavController) {
             }
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.width(16.dp))
     }
 }
 
@@ -66,9 +66,9 @@ fun DetailScreen(note: Note, modifier: Modifier = Modifier, navController: NavCo
             .fillMaxSize()
     ) {
         Text(text = note.title, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.width(16.dp))
         Text(text = note.content)
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.width(16.dp))
 
         Button(
             onClick = {
@@ -111,7 +111,7 @@ fun EditNoteScreen(
     var validationResults by remember { mutableStateOf(ValidationResults()) }
 
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxSize()
     ) {
         OutlinedTextField(
             value = titleText,

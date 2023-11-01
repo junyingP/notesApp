@@ -3,7 +3,7 @@ package com.example.notesapp
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -18,10 +18,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun ListView(list: MutableList<Note>, onEditClick: (Note) -> Unit, onDetailClick: (Note) -> Unit) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
+    LazyColumn {
         itemsIndexed(list) { index, note ->
             RowView(
                 note = note,
@@ -45,7 +42,7 @@ fun deleteNote(list: MutableList<Note>, position: Int) {
 fun RowView(note: Note, onDeleteClick: () -> Unit, onEditClick: () -> Unit, onDetailClick: () -> Unit) {
     Row(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(
@@ -64,11 +61,10 @@ fun RowView(note: Note, onDeleteClick: () -> Unit, onEditClick: () -> Unit, onDe
 
     }
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxWidth()
     ) {
-        Row(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        Row {
             Button(
                 onClick = onDeleteClick,
                 content = { Text("Delete") }
