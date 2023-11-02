@@ -3,6 +3,7 @@ package com.example.notesapp
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -62,9 +63,12 @@ fun RowView(note: Note, onDeleteClick: () -> Unit, onEditClick: () -> Unit, onDe
     }
     Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxHeight()
     ) {
-        Row {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
             Button(
                 onClick = onDeleteClick,
                 content = { Text("Delete") }

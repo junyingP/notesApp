@@ -113,8 +113,6 @@ fun Navigation() {
                         val noteToEdit = list.getOrNull(noteIndex)
                         if (noteToEdit != null) {
                             EditNoteScreen(note = noteToEdit) { title, content, validationResult ->
-                                // Handle saving the edited note here
-                                // You can use noteIndex to update the list if needed
                                 if (validationResult.isTitleValid && validationResult.isContentLengthValid) {
                                     noteToEdit.title = title
                                     noteToEdit.content = content
